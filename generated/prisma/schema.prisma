@@ -1,0 +1,338 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String    @id
+  first_name String
+  last_name  String
+  email      String    @unique
+  password   String
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  @@map("user")
+}
+
+model Customer {
+  id          String    @id
+  first_name  String
+  last_name   String
+  email       String    @unique
+  phone       String    @unique
+  password    String?
+  address     String
+  has_account Boolean   @default(false)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+
+  @@map("customer")
+}
+
+enum ProductStatus {
+  Draft
+  Published
+}
+
+model Category {
+  id                 String     @id
+  parent_category_id String?
+  parent_category    Category?  @relation(name: "C2C", fields: [parent_category_id], references: [id], onDelete: Cascade)
+  title              String
+  description        String
+  handle             String
+  mpath              String
+  is_active          Boolean    @default(false)
+  rank               Int        @default(0)
+  created_at         DateTime   @default(now())
+  updated_at         DateTime   @updatedAt
+  deleted_at         DateTime?
+  children_category  Category[] @relation(name: "C2C")
+  products           Product[]
+
+  @@map("category")
+}
+
+model Collection {
+  id         String    @id
+  title      String
+  handle     String
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+  products   Product[]
+
+  @@map("collection")
+}
+
+model Type {
+  id         String    @id
+  value      String
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+  products   Product[]
+
+  @@map("type")
+}
+
+model Product {
+  id            String        @id
+  title         String
+  handle        String
+  description   String
+  status        ProductStatus @default(Draft)
+  thumbnail     String
+  weight        Int?
+  length        Int?
+  height        Int?
+  width         Int?
+  material      String?
+  category_id   String?
+  category      Category?     @relation(fields: [category_id], references: [id], onDelete: SetNull)
+  collection_id String?
+  collection    Collection?   @relation(fields: [collection_id], references: [id], onDelete: SetNull)
+  type_id       String?
+  type          Type?         @relation(fields: [type_id], references: [id], onDelete: SetNull)
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
+  deleted_at    DateTime?
+  images        Image[]
+  product_tags  ProductTag[]
+  options       Option[]
+  variants      Variant[]
+
+  @@map("product")
+}
+
+model Image {
+  id         String    @id
+  url        String
+  rank       Int       @default(0)
+  product_id String
+  product    Product   @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  @@map("image")
+}
+
+model Tag {
+  id           String       @id
+  value        String
+  created_at   DateTime     @default(now())
+  updated_at   DateTime     @updatedAt
+  deleted_at   DateTime?
+  product_tags ProductTag[]
+
+  @@map("tag")
+}
+
+model ProductTag {
+  product_id String
+  product    Product @relation(fields: [product_id], references: [id])
+  tag_id     String
+  tag        Tag     @relation(fields: [tag_id], references: [id])
+
+  @@id([product_id, tag_id])
+  @@map("product_tag")
+}
+
+model Option {
+  id            String        @id
+  product_id    String
+  product       Product       @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  title         String
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
+  deleted_at    DateTime?
+  option_values OptionValue[]
+
+  @@map("option")
+}
+
+model OptionValue {
+  id             String          @id
+  option_id      String
+  option         Option          @relation(fields: [option_id], references: [id], onDelete: Cascade)
+  value          String
+  created_at     DateTime        @default(now())
+  updated_at     DateTime        @updatedAt
+  deleted_at     DateTime?
+  option_variant OptionVariant[]
+
+  @@map("option_value")
+}
+
+model Variant {
+  id              String          @id
+  product_id      String
+  product         Product         @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  title           String
+  price           Float
+  sale_price      Float?
+  sku             String?
+  stock           Int             @default(0)
+  barcode         String?
+  weight          Int?
+  length          Int?
+  height          Int?
+  width           Int?
+  material        String?
+  rank            Int             @default(0)
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
+  deleted_at      DateTime?
+  option_variants OptionVariant[]
+  order_items     OrderItem[]
+  cart_items      CartItem[]
+
+  @@map("variant")
+}
+
+model OptionVariant {
+  variant_id      String
+  variant         Variant     @relation(fields: [variant_id], references: [id])
+  option_value_id String
+  option_value    OptionValue @relation(fields: [option_value_id], references: [id])
+
+  @@id([variant_id, option_value_id])
+  @@map("option_variant")
+}
+
+enum PromotionType {
+  Fixed
+  Percent
+}
+
+enum PromotionStatus {
+  Draft
+  Active
+  Inactive
+}
+
+model Promotion {
+  id              String          @id
+  code            String          @unique
+  value           Float
+  min_order_value Float
+  usage_limit     Int
+  used_count      Int
+  is_automatic    Boolean         @default(false)
+  type            PromotionType
+  status          PromotionStatus @default(Draft)
+  starts_at       DateTime
+  ends_at         DateTime
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
+  deleted_at      DateTime?
+  orders          Order[]
+
+  @@map("promotion")
+}
+
+enum PaymentStatus {
+  Canceled
+  NotPaid
+  Awaiting
+  Captured
+  Refunded
+}
+
+enum OrderStatus {
+  Pending
+  Completed
+  Canceled
+}
+
+model Order {
+  id               String        @id
+  customer_id      String
+  promotion_id     String?
+  promotion        Promotion?    @relation(fields: [promotion_id], references: [id])
+  version          Int           @default(1)
+  is_draft_order   Boolean       @default(false)
+  email            String
+  shipping_address String
+  subtotal         Float
+  discount_total   Float
+  shipping_total   Float
+  total            Float
+  payment_status   PaymentStatus @default(Awaiting)
+  order_status     OrderStatus   @default(Pending)
+  created_at       DateTime      @default(now())
+  updated_at       DateTime      @updatedAt
+  deleted_at       DateTime?
+  canceled_at      DateTime?
+  order_items      OrderItem[]
+
+  @@map("order")
+}
+
+model OrderItem {
+  id                String    @id
+  order_id          String
+  order             Order     @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  item_id           String
+  item              Variant   @relation(fields: [item_id], references: [id])
+  quantity          Int
+  unit_price        Float
+  unit_total        Float
+  product_title     String?
+  product_thumbnail String?
+  variant_sku       String?
+  variant_title     String?
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+  deleted_at        DateTime?
+
+  @@map("order_item")
+}
+
+model Cart {
+  id           String     @id
+  customer_id  String
+  email        String
+  created_at   DateTime   @default(now())
+  updated_at   DateTime   @updatedAt
+  deleted_at   DateTime?
+  completed_at DateTime?
+  cart_items   CartItem[]
+
+  @@map("cart")
+}
+
+model CartItem {
+  id                String    @id
+  cart_id           String
+  cart              Cart      @relation(fields: [cart_id], references: [id], onDelete: Cascade)
+  item_id           String
+  item              Variant   @relation(fields: [item_id], references: [id])
+  quantity          Int
+  unit_price        Float
+  unit_total        Float
+  product_title     String?
+  product_thumbnail String?
+  variant_sku       String?
+  variant_title     String?
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+  deleted_at        DateTime?
+
+  @@map("cart_item")
+}
