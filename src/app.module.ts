@@ -6,6 +6,8 @@ import { CategoriesModule } from './categories/categories.module';
 import { CollectionsModule } from './collections/collections.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
+import { TagsModule } from './tags/tags.module';
+import { TypesModule } from './types/types.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     CategoriesModule,
     CollectionsModule,
+    TagsModule,
+    TypesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
