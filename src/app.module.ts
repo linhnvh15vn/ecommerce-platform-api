@@ -8,6 +8,9 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
 import { TagsModule } from './tags/tags.module';
 import { TypesModule } from './types/types.module';
+import { ProductsModule } from './products/products.module';
+import { OptionsModule } from './options/options.module';
+import { VariantsModule } from './variants/variants.module';
 
 @Module({
   imports: [
@@ -18,6 +21,9 @@ import { TypesModule } from './types/types.module';
     CollectionsModule,
     TagsModule,
     TypesModule,
+    ProductsModule,
+    OptionsModule,
+    VariantsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
