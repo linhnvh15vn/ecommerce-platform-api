@@ -10,7 +10,7 @@ export class TypesService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async findAll(queryTypeDto: QueryTypeDto) {
-    const { value, pageIndex = 1, itemsPerPages = 10 } = queryTypeDto;
+    const { value, pageIndex = 1, itemsPerPage = 10 } = queryTypeDto;
     const types = await this.prismaService.type.findMany({
       where: {
         value: {
@@ -18,8 +18,8 @@ export class TypesService {
           mode: 'insensitive',
         },
       },
-      skip: (pageIndex - 1) * itemsPerPages,
-      take: itemsPerPages,
+      skip: (pageIndex - 1) * itemsPerPage,
+      take: itemsPerPage,
       orderBy: {
         created_at: 'desc',
       },
@@ -29,10 +29,10 @@ export class TypesService {
     return {
       items: types,
       currentItemCount: types.length,
-      itemsPerPages,
+      itemsPerPage,
       totalItems,
       pageIndex,
-      totalPages: Math.ceil(totalItems / itemsPerPages),
+      totalPages: Math.ceil(totalItems / itemsPerPage),
     };
   }
 

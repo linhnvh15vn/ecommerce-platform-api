@@ -26,5 +26,5 @@ export class QueryCategoryDto {
   @IsOptional()
   @Min(1)
   @Transform(({ value }) => parseInt(value, 10))
-  itemsPerPages?: number;
+  itemsPerPage?: number;
 }

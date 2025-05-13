@@ -11,7 +11,7 @@ export class CollectionsService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async findAll(queryCollectionDto: QueryCollectionDto) {
-    const { title, pageIndex = 1, itemsPerPages = 10 } = queryCollectionDto;
+    const { title, pageIndex = 1, itemsPerPage = 10 } = queryCollectionDto;
     const collections = await this.prismaService.collection.findMany({
       where: {
         title: {
@@ -19,8 +19,8 @@ export class CollectionsService {
           mode: 'insensitive',
         },
       },
-      skip: (pageIndex - 1) * itemsPerPages,
-      take: itemsPerPages,
+      skip: (pageIndex - 1) * itemsPerPage,
+      take: itemsPerPage,
       orderBy: {
         created_at: 'desc',
       },
@@ -30,10 +30,10 @@ export class CollectionsService {
     return {
       items: collections,
       currentItemCount: collections.length,
-      itemsPerPages,
+      itemsPerPage,
       totalItems,
       pageIndex,
-      totalPages: Math.ceil(totalItems / itemsPerPages),
+      totalPages: Math.ceil(totalItems / itemsPerPage),
     };
   }
 

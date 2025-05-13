@@ -10,7 +10,7 @@ export class TagsService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async findAll(queryTagDto: QueryTagDto) {
-    const { value, pageIndex = 1, itemsPerPages = 10 } = queryTagDto;
+    const { value, pageIndex = 1, itemsPerPage = 10 } = queryTagDto;
     const tags = await this.prismaService.tag.findMany({
       where: {
         value: {
@@ -18,8 +18,8 @@ export class TagsService {
           mode: 'insensitive',
         },
       },
-      skip: (pageIndex - 1) * itemsPerPages,
-      take: itemsPerPages,
+      skip: (pageIndex - 1) * itemsPerPage,
+      take: itemsPerPage,
       orderBy: {
         created_at: 'desc',
       },
@@ -29,10 +29,10 @@ export class TagsService {
     return {
       items: tags,
       currentItemCount: tags.length,
-      itemsPerPages,
+      itemsPerPage,
       totalItems,
       pageIndex,
-      totalPages: Math.ceil(totalItems / itemsPerPages),
+      totalPages: Math.ceil(totalItems / itemsPerPage),
     };
   }
 

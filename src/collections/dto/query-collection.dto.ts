@@ -20,5 +20,5 @@ export class QueryCollectionDto {
   @Min(1)
   @IsOptional()
   @Transform(({ value }) => parseInt(value, 10))
-  itemsPerPages?: number;
+  itemsPerPage?: number;
 }

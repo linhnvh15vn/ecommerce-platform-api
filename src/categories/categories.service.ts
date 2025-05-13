@@ -15,7 +15,7 @@ export class CategoriesService {
       title,
       is_active,
       pageIndex = 1,
-      itemsPerPages = 1,
+      itemsPerPage = 10,
     } = queryCategoryDto;
 
     const categories = await this.prismaService.category.findMany({
@@ -26,8 +26,8 @@ export class CategoriesService {
           mode: 'insensitive',
         },
       },
-      skip: (pageIndex - 1) * itemsPerPages,
-      take: itemsPerPages,
+      skip: (pageIndex - 1) * itemsPerPage,
+      take: itemsPerPage,
       orderBy: {
         created_at: 'desc',
       },
@@ -37,10 +37,10 @@ export class CategoriesService {
     return {
       items: categories,
       currentItemCount: categories.length,
-      itemsPerPages,
+      itemsPerPage,
       totalItems,
       pageIndex,
-      totalPages: Math.ceil(totalItems / itemsPerPages),
+      totalPages: Math.ceil(totalItems / itemsPerPage),
     };
   }
 

@@ -18,7 +18,7 @@ export class ProductsService {
   ) {}
 
   async findAll(queryProductDto: QueryProductDto) {
-    const { title, pageIndex = 1, itemsPerPages = 10 } = queryProductDto;
+    const { title, pageIndex = 1, itemsPerPage = 10 } = queryProductDto;
     const products = await this.prismaService.product.findMany({
       where: {
         title: {
@@ -36,9 +36,11 @@ export class ProductsService {
             sale_price: true,
           },
         },
+        created_at: true,
+        updated_at: true,
       },
-      skip: (pageIndex - 1) * itemsPerPages,
-      take: itemsPerPages,
+      skip: (pageIndex - 1) * itemsPerPage,
+      take: itemsPerPage,
       orderBy: {
         created_at: 'desc',
       },
@@ -48,10 +50,10 @@ export class ProductsService {
     return {
       items: products,
       currentItemCount: products.length,
-      itemsPerPages,
+      itemsPerPage,
       totalItems,
       pageIndex,
-      totalPages: Math.ceil(totalItems / itemsPerPages),
+      totalPages: Math.ceil(totalItems / itemsPerPage),
     };
   }
 
